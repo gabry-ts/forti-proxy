@@ -1,0 +1,15 @@
+name: forticlient
+services:
+  fortinet-vpn:
+    build: .
+    stdin_open: true
+    tty: true
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - 500:500/udp
+      - 4500:4500/udp
+      - 1080:1080/tcp  # porta per proxy SOCKS5
+      - 1090:8080      # porta per il proxy HTTP
+    container_name: fortinet-vpn

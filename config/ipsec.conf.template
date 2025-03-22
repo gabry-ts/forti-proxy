@@ -1,0 +1,38 @@
+config setup
+    charondebug = "dmn 1, mgr 1, ike 2, chd 1, job 1, cfg 2, knl 2, net 1, lib 1"
+    uniqueids=no
+
+conn fortinet
+    keyexchange=ikev1
+    ike=aes128-sha1-modp1536,aes256-sha256-modp1536
+    esp=aes128-sha1-modp1536,aes256-sha1-modp1536
+
+    aggressive = yes
+    authby=secret
+
+    right=YOUR_GATEWAY
+    rightid = %any
+    rightauth = psk
+
+    rightsubnet = 0.0.0.0/0
+
+    left=%defaultroute
+    leftauth = psk
+    leftauth2 = xauth
+    leftid = "YOUR_USERNAME"
+    leftsourceip=%config
+
+    dpdaction=clear
+    dpddelay=30s
+    dpdtimeout=150s
+    ikelifetime=86400s
+    lifetime=43200s
+    keylife=43200s
+    rekeymargin=3m
+    keyingtries=1
+    type=tunnel
+    replay_window=32
+    mobike=no
+    forceencaps=yes
+
+    auto=start
