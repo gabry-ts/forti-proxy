@@ -10,7 +10,7 @@ jobs:
     name: docker-build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Create config files from templates
         run: |
           cp config/ipsec.conf.template config/ipsec.conf
