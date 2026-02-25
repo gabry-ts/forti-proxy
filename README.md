@@ -17,7 +17,7 @@ FortiClient is bloated, installs kernel extensions, and takes over your whole sy
 ### Using the pre-built image
 
 ```bash
-docker pull ghcr.io/gabry-ts/forticlient-proxy:latest
+docker pull ghcr.io/gabry-ts/forti-proxy:latest
 ```
 
 ### Building locally
