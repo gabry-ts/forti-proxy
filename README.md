@@ -2,7 +2,7 @@
 
 Route any app through a Fortinet IPsec VPN — without installing FortiClient.
 
-[![CI](https://github.com/gabry-ts/forticlient-proxy/actions/workflows/ci.yml/badge.svg)](https://github.com/gabry-ts/forticlient-proxy/actions/workflows/ci.yml)
+[![CI](https://github.com/gabry-ts/forti-proxy/actions/workflows/ci.yml/badge.svg)](https://github.com/gabry-ts/forti-proxy/actions/workflows/ci.yml)
 ![Docker](https://img.shields.io/badge/Docker-ready-blue.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
@@ -23,7 +23,7 @@ docker pull ghcr.io/gabry-ts/forti-proxy:latest
 ### Building locally
 
 ```bash
-git clone https://github.com/gabry-ts/forticlient-proxy.git
+git clone https://github.com/gabry-ts/forti-proxy.git
 cd forticlient-proxy
 
 # Configure your VPN credentials
