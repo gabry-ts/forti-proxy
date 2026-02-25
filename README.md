@@ -1,66 +1,76 @@
-# Fortinet VPN Proxy Docker Setup
+# forticlient-proxy
 
-This repository contains Docker configuration for creating a Fortinet IPsec VPN client container with built-in HTTP and SOCKS5 proxy capabilities.
+Route any app through a Fortinet IPsec VPN — without installing FortiClient.
 
-## Directory Structure
+![Docker](https://img.shields.io/badge/Docker-ready-blue.svg)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-```
-fortinet-vpn-proxy/
-├── Dockerfile
-├── config/
-│   ├── ipsec.conf.template
-│   └── ipsec.secrets.template
-├── scripts/
-│   └── start.sh
-└── docker-compose.yml
-```
+## Why
 
-## Setup Instructions
+FortiClient is bloated, installs kernel extensions, and takes over your whole system. Sometimes you just need to route specific traffic through a corporate VPN.
 
-1. Clone this repository
-2. Create your configuration files from the templates:
+**forticlient-proxy** runs a Fortinet IPsec VPN client inside Docker and exposes it as HTTP and SOCKS5 proxies. Point any app at `localhost:1080` and its traffic goes through the VPN. Everything else stays on your normal connection.
+
+## Quick Start
 
 ```bash
+git clone https://github.com/gabry-ts/forticlient-proxy.git
+cd forticlient-proxy
+
+# Configure your VPN credentials
 cp config/ipsec.conf.template config/ipsec.conf
 cp config/ipsec.secrets.template config/ipsec.secrets
+# Edit both files with your gateway, username, PSK, and password
+
+docker compose up -d
 ```
 
-3. Edit the configuration files with your VPN credentials:
-   - In `config/ipsec.conf`: 
-     - Replace `YOUR_GATEWAY` with your VPN gateway IP address
-     - Replace `YOUR_USERNAME` with your VPN username
-   - In `config/ipsec.secrets`: 
-     - Replace `YOUR_PRESHARED_KEY` with your VPN pre-shared key
-     - Replace `YOUR_PASSWORD` with your VPN password
+## Proxy Endpoints
 
-4. Build and run the container:
+| Protocol | Address | Use case |
+|----------|---------|----------|
+| SOCKS5 | `localhost:1080` | Browsers, SSH, curl (`--proxy socks5://localhost:1080`) |
+| HTTP | `localhost:1090` | Apps that only support HTTP proxies |
 
-```bash
-docker-compose up -d
+## How It Works
+
+```
+┌─────────────┐     SOCKS5/HTTP     ┌──────────────────┐     IPsec VPN     ┌─────────────┐
+│  Your apps   │ ──────────────────► │  Docker container │ ────────────────► │  Corporate   │
+│  (browser,   │   localhost:1080    │  strongSwan +     │   UDP 500/4500   │  network     │
+│   curl, etc) │   localhost:1090    │  microsocks +     │                  │              │
+└─────────────┘                     │  tinyproxy        │                  └─────────────┘
+                                    └──────────────────┘
 ```
 
-## Configuration Details
+The container runs:
+- **strongSwan** — IPsec VPN client (aggressive mode + XAuth)
+- **microsocks** — lightweight SOCKS5 proxy
+- **tinyproxy** — HTTP proxy
 
-### IPsec Configuration
+All proxy traffic is routed through the VPN tunnel via iptables.
 
-The VPN uses IPsec with the following parameters:
-- VPN Type: IPsec
-- Connection Method: Aggressive Mode
-- Authentication: Pre-shared key + XAuth
+## Configuration
 
-**Important Security Note:** The configuration files contain sensitive credentials. Never commit the populated configuration files to a public repository.
+Edit `config/ipsec.conf`:
+```
+conn fortinet
+    right=YOUR_GATEWAY        # VPN server IP
+    xauth_identity=YOUR_USERNAME
+```
 
-### Exposed Services
+Edit `config/ipsec.secrets`:
+```
+: PSK "YOUR_PRESHARED_KEY"
+YOUR_USERNAME : XAUTH "YOUR_PASSWORD"
+```
 
-The container exposes the following services:
-- IPsec VPN (UDP ports 500, 4500)
-- HTTP Proxy (TCP port 8080, mapped to 1090)
-- SOCKS5 Proxy (TCP port 1080)
+> **Never commit these files.** They are in `.gitignore`.
 
-## Usage
+## Use Cases
 
-Once the container is running, you can configure your applications to use:
-- SOCKS5 proxy at `localhost:1080`
-- HTTP proxy at `localhost:1090`
-
-All traffic through these proxies will be routed through the VPN connection.
+- Access corporate resources without installing FortiClient
+- Route only specific traffic through VPN (split tunneling by app)
+- Run VPN access in CI/CD pipelines
+- Use on Linux servers where FortiClient is not available
+- Keep your host system clean from VPN client bloat
