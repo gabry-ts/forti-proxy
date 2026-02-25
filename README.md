@@ -2,8 +2,9 @@
 
 Route any app through a Fortinet IPsec VPN — without installing FortiClient.
 
+[![CI](https://github.com/gabry-ts/forticlient-proxy/actions/workflows/ci.yml/badge.svg)](https://github.com/gabry-ts/forticlient-proxy/actions/workflows/ci.yml)
 ![Docker](https://img.shields.io/badge/Docker-ready-blue.svg)
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 ## Why
 
@@ -12,6 +13,14 @@ FortiClient is bloated, installs kernel extensions, and takes over your whole sy
 **forticlient-proxy** runs a Fortinet IPsec VPN client inside Docker and exposes it as HTTP and SOCKS5 proxies. Point any app at `localhost:1080` and its traffic goes through the VPN. Everything else stays on your normal connection.
 
 ## Quick Start
+
+### Using the pre-built image
+
+```bash
+docker pull ghcr.io/gabry-ts/forticlient-proxy:latest
+```
+
+### Building locally
 
 ```bash
 git clone https://github.com/gabry-ts/forticlient-proxy.git
@@ -34,13 +43,10 @@ docker compose up -d
 
 ## How It Works
 
-```
-┌─────────────┐     SOCKS5/HTTP     ┌──────────────────┐     IPsec VPN     ┌─────────────┐
-│  Your apps   │ ──────────────────► │  Docker container │ ────────────────► │  Corporate   │
-│  (browser,   │   localhost:1080    │  strongSwan +     │   UDP 500/4500   │  network     │
-│   curl, etc) │   localhost:1090    │  microsocks +     │                  │              │
-└─────────────┘                     │  tinyproxy        │                  └─────────────┘
-                                    └──────────────────┘
+```mermaid
+graph LR
+    A[Your apps<br>browser, curl, etc] -->|SOCKS5 :1080<br>HTTP :1090| B[Docker container<br>strongSwan + microsocks + tinyproxy]
+    B -->|IPsec VPN<br>UDP 500/4500| C[Corporate<br>network]
 ```
 
 The container runs:
@@ -74,3 +80,7 @@ YOUR_USERNAME : XAUTH "YOUR_PASSWORD"
 - Run VPN access in CI/CD pipelines
 - Use on Linux servers where FortiClient is not available
 - Keep your host system clean from VPN client bloat
+
+## License
+
+[MIT](./LICENSE)

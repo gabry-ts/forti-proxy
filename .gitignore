@@ -1,0 +1,4 @@
+config/ipsec.conf
+config/ipsec.secrets
+.env
+.DS_Store
